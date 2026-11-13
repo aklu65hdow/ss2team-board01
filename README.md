@@ -19,16 +19,19 @@
 - **Почта:** провайдер Email включён по умолчанию. Встроенная отправка писем Supabase имеет низкий лимит в час. Для команды больше 3–4 человек подключите свой SMTP (Authentication → Emails → SMTP Settings), например Resend или почту компании.
 
 ### 3. Ключи
-Понадобятся:
-| Переменная | Где взять |
+**Обязательные** (Supabase → Project Settings → API):
+| Переменная | Что это |
 |---|---|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase → Project Settings → API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | там же, ключ `anon` / publishable |
-| `SUPABASE_SERVICE_ROLE_KEY` | там же, ключ `service_role` / secret. **Никому не показывать** |
-| `OPENAI_API_KEY` | platform.openai.com → API keys (пополните баланс на $5–10) |
-| `OPENAI_TRANSCRIBE_MODEL` | необязательно, по умолчанию `gpt-transcribe` |
-| `ANTHROPIC_API_KEY` | console.anthropic.com → API keys (пополните баланс на $5–10) |
-| `ANTHROPIC_MODEL` | необязательно, по умолчанию `claude-sonnet-5-5` |
+| `NEXT_PUBLIC_SUPABASE_URL` | Project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ключ `anon` / publishable |
+| `SUPABASE_SERVICE_ROLE_KEY` | ключ `service_role` / secret. **Никому не показывать** |
+
+**Необязательные.** Без них доска работает полностью, но транскрипт созвона вставляется вручную, а бриф не собирается сам.
+| Переменная | Что это |
+|---|---|
+| `TRANSCRIBE_API_URL`, `TRANSCRIBE_API_KEY`, `TRANSCRIBE_MODEL` | сервис расшифровки речи с OpenAI-совместимым API (`/audio/transcriptions`). По умолчанию OpenAI |
+| `ANTHROPIC_API_KEY`, `ANTHROPIC_MODEL` | брифы через Claude API |
+| `LLM_API_URL`, `LLM_API_KEY`, `LLM_MODEL` | или брифы через любой сервис с OpenAI-совместимым `/chat/completions` |
 
 ### 4. Хостинг на Vercel
 1. vercel.com → войти через GitHub → **Add New → Project** → выбрать этот репозиторий.

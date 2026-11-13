@@ -22,18 +22,23 @@ function run(cmd, args) {
   });
 }
 
+// Любой сервис с OpenAI-совместимым API расшифровки (/audio/transcriptions).
+const TR_URL = () => (process.env.TRANSCRIBE_API_URL || "https://api.openai.com/v1").replace(/\/$/, "") + "/audio/transcriptions";
+const TR_KEY = () => process.env.TRANSCRIBE_API_KEY || process.env.OPENAI_API_KEY;
+const TR_MODEL = () => process.env.TRANSCRIBE_MODEL || process.env.OPENAI_TRANSCRIBE_MODEL || "gpt-transcribe";
+
 async function transcribeChunk(buf, name) {
   const form = new FormData();
   form.append("file", new Blob([buf], { type: "audio/mpeg" }), name);
-  form.append("model", process.env.OPENAI_TRANSCRIBE_MODEL || "gpt-transcribe");
+  form.append("model", TR_MODEL());
   form.append("response_format", "json");
-  const r = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+  const r = await fetch(TR_URL(), {
     method: "POST",
-    headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+    headers: { Authorization: `Bearer ${TR_KEY()}` },
     body: form,
   });
   const j = await r.json().catch(() => ({}));
-  if (!r.ok) throw new Error((j.error && j.error.message) || "OpenAI: ошибка " + r.status);
+  if (!r.ok) throw new Error((j.error && j.error.message) || "Сервис расшифровки: ошибка " + r.status);
   return (j.text || "").trim();
 }
 
@@ -42,7 +47,7 @@ export async function POST(request) {
   if (auth.error) return auth.error;
   const { callId } = await request.json().catch(() => ({}));
   if (!callId || !/^[\w-]+$/.test(callId)) return Response.json({ error: "Не указан созвон" }, { status: 400 });
-  if (!process.env.OPENAI_API_KEY) return Response.json({ error: "Не задан ключ OPENAI_API_KEY" }, { status: 500 });
+  if (!TR_KEY()) return Response.json({ error: "Автоматическая расшифровка не настроена. Вставьте транскрипт вручную или задайте TRANSCRIBE_API_KEY." }, { status: 400 });
 
   const admin = createAdminClient();
   const path = "calls/" + callId;
