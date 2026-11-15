@@ -38,6 +38,14 @@
 2. В **Environment Variables** добавить все ключи из таблицы выше.
 3. **Deploy**. Через пару минут появится адрес вида `https://team-board-xxx.vercel.app`.
 
+### 4б. Хостинг на Render (если Vercel недоступен)
+1. render.com → войти через GitHub → **New → Blueprint** → выбрать этот репозиторий.
+2. Render прочитает `render.yaml` и попросит три ключа Supabase. Вставьте их и нажмите **Apply**.
+3. Первая сборка идёт 3–5 минут. Адрес сайта будет вида `https://team-board-xxxx.onrender.com`.
+4. Дальше, как в шаге 5: этот адрес указывается в Supabase → URL Configuration.
+
+На бесплатном тарифе Render сайт засыпает после 15 минут без посещений, и первое открытие после этого занимает около минуты. Тариф Starter ($7/мес) убирает засыпание.
+
 ### 5. Связать адрес сайта с входом
 Supabase → Authentication → **URL Configuration**:
 - **Site URL:** адрес сайта с Vercel.
