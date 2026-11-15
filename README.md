@@ -46,6 +46,21 @@
 
 На бесплатном тарифе Render сайт засыпает после 15 минут без посещений, и первое открытие после этого занимает около минуты. Тариф Starter ($7/мес) убирает засыпание.
 
+### 4в. Свой сервер (VPS): без Vercel и Render
+Нужен сервер с **Ubuntu 24.04**, 1–2 ГБ памяти, доступ по SSH под root. Подойдёт любой провайдер, где вы можете оплатить сервер.
+
+1. Подключитесь к серверу: `ssh root@IP_СЕРВЕРА`.
+2. Выполните:
+   ```bash
+   curl -fsSL https://raw.githubusercontent.com/aklu65hdow/ss2team-board01/main/deploy/install.sh -o install.sh
+   bash install.sh
+   ```
+   Если репозиторий приватный: `GITHUB_TOKEN=токен bash install.sh`, а скрипт скачайте через `git clone` с тем же токеном или скопируйте вручную.
+3. Скрипт спросит три ключа Supabase и домен. Если своего домена нет, просто нажмите Enter: будет бесплатный адрес вида `1-2-3-4.sslip.io` с HTTPS.
+4. В конце скрипт выведет адрес доски и что вписать в Supabase → URL Configuration.
+
+Обновление до новой версии: `sudo bash /opt/team-board/deploy/update.sh`. Ошибки: `journalctl -u team-board -n 100`.
+
 ### 5. Связать адрес сайта с входом
 Supabase → Authentication → **URL Configuration**:
 - **Site URL:** адрес сайта с Vercel.

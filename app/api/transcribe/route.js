@@ -2,13 +2,19 @@ import { spawn } from "node:child_process";
 import { mkdtemp, writeFile, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import ffmpegPath from "ffmpeg-static";
 import { requireWriter } from "@/lib/auth";
 import { createAdminClient, mergeDoc } from "@/lib/supabase/admin";
 import { makeBrief } from "@/lib/brief";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
+
+// ffmpeg: системный (FFMPEG_PATH) или из пакета ffmpeg-static, если он установился.
+async function ffmpegBin() {
+  if (process.env.FFMPEG_PATH) return process.env.FFMPEG_PATH;
+  try { const m = await import("ffmpeg-static"); if (m.default) return m.default; } catch {}
+  return "ffmpeg";
+}
 
 const SEGMENT_SECONDS = 600; // режем на куски по 10 минут: каждый кусок ~2-3 МБ
 
@@ -62,7 +68,7 @@ export async function POST(request) {
     const input = join(dir, "input");
     await writeFile(input, Buffer.from(await file.arrayBuffer()));
     // моно, 16 кГц, 32 кбит/с — для речи этого достаточно, и куски проходят лимит API
-    await run(ffmpegPath, ["-hide_banner", "-loglevel", "error", "-i", input, "-vn", "-ac", "1", "-ar", "16000", "-b:a", "32k",
+    await run(await ffmpegBin(), ["-hide_banner", "-loglevel", "error", "-i", input, "-vn", "-ac", "1", "-ar", "16000", "-b:a", "32k",
       "-f", "segment", "-segment_time", String(SEGMENT_SECONDS), "-reset_timestamps", "1", join(dir, "part-%03d.mp3")]);
     const parts = (await readdir(dir)).filter((f) => f.startsWith("part-")).sort();
     if (!parts.length) throw new Error("В записи не найден звук");
