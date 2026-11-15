@@ -129,7 +129,11 @@ CADDY
 systemctl enable caddy
 systemctl restart caddy
 
-ufw allow OpenSSH >/dev/null; ufw allow 80/tcp >/dev/null; ufw allow 443/tcp >/dev/null
+# открываем все порты, на которых сейчас слушает SSH (22 и, например, 2222), чтобы не потерять доступ
+SSH_PORTS="$(sshd -T 2>/dev/null | awk '$1=="port"{print $2}' | sort -u)"
+[ -n "$SSH_PORTS" ] || SSH_PORTS=22
+for p in $SSH_PORTS; do ufw allow "$p/tcp" >/dev/null; done
+ufw allow 80/tcp >/dev/null; ufw allow 443/tcp >/dev/null
 ufw --force enable >/dev/null
 
 echo "$DOMAIN" > "$APP_DIR/.domain"
